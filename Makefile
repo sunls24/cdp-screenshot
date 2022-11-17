@@ -1,20 +1,6 @@
-NowTime = $(shell date "+%Y-%m-%d-%H:%M:%S")
-
-# 判断系统和架构，目前只支持macOS/linux
-ifeq ($(shell uname),Darwin)
-  OS=darwin
-else
-  OS=linux
-endif
-ifeq ($(shell uname -m),x86_64)
-  ARCH=amd64
-else
-  ARCH=arm64
-endif
-
 dockerfile: ## 生成默认的Dockerfile
 	@echo "生成Dockerfile"
-	@goctl docker --go internal/screenshot.go
+	@goctl docker --go internal/screenshot.go --version 1.19.3 --port 8888 --base alpine:3.17
 
 .PHONY: genapi
 genapi: ## 生成API和Swagger文件
@@ -39,10 +25,11 @@ _clean_run:
 
 clean:_clean_run ## 清理文件
 
+V?=v1.0.0
 .PHONY: build
 build: ## 构建Docker镜像
 	@echo "building..."
-	@docker build -t cdp-screenshot:v0.1 .
+	@docker build -t cdp-screenshot:${V} .
 
 help:
 	@awk -F ':|##' '/^[^\t].+?:.*?##/ {\

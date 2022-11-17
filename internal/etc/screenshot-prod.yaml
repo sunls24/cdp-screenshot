@@ -1,0 +1,13 @@
+Name: cdp.screenshot
+Host: 0.0.0.0
+Port: 8888
+Timeout: 0
+
+WsURL: ws://127.0.0.1:9222/
+
+Log:
+  ServiceName: cdp.screenshot
+  Mode: console
+  Level: info
+  Encoding: plain
+  TimeFormat: "2006-01-02 15:04:05"

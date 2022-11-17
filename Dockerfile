@@ -1,4 +1,4 @@
-FROM golang:alpine AS builder
+FROM golang:1.19.3-alpine AS builder
 
 LABEL stage=gobuilder
 
@@ -14,10 +14,10 @@ ADD go.mod .
 ADD go.sum .
 RUN go mod download
 COPY . .
-RUN go build -ldflags="-s -w" -o /app/screenshot internal/internal/screenshot.go
+RUN go build -ldflags="-s -w" -o /app/screenshot internal/screenshot.go
 
 
-FROM scratch
+FROM alpine:3.17
 
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=builder /usr/share/zoneinfo/Asia/Shanghai /usr/share/zoneinfo/Asia/Shanghai
@@ -25,5 +25,8 @@ ENV TZ Asia/Shanghai
 
 WORKDIR /app
 COPY --from=builder /app/screenshot /app/screenshot
+COPY internal/etc/screenshot-prod.yaml /app/etc/screenshot.yaml
+
+EXPOSE 8888
 
 CMD ["./screenshot"]
