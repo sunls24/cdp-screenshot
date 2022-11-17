@@ -1,0 +1,31 @@
+syntax = "v1"
+
+info(
+	title: "chromedp截图接口"
+	desc: "使用chromedp协议实现的网页截图功能"
+	author: "YSKJ"
+	version: "v1.0.0"
+)
+
+type request {
+	// 目标URL
+	URL string `json:"url"`
+	// 截图清晰度<1-10>，主要影响图片分辨率，默认为8，清晰度越高截图文件越大
+	Clarity int `json:"clarity,optional,range=[1:10]"`
+	// 截图质量 <1-100>
+	Quality int `json:"quality,optional,range=[1:100]"`
+
+	// 窗口大小宽度
+	ViewportWidth int `json:"viewportWidth,optional"`
+	// 窗口大小高度
+	ViewportHeight int `json:"viewportHeight,optional"`
+
+	// 截图超时设置，单位秒
+	Timeout int `json:"timeout,optional"`
+}
+
+service screenshot {
+	@doc "截图接口"
+	@handler Screenshot
+	post /screenshot (request)
+}

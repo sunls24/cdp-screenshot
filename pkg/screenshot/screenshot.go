@@ -24,7 +24,7 @@ func NewConnect(wsURL string) (*Connect, error) {
 }
 
 // Screenshot 全屏截图，返回图片数据
-func (c *Connect) Screenshot(opts Options) ([]byte, error) {
+func (c *Connect) Screenshot(opts *Options) ([]byte, error) {
 	if err := opts.check(); err != nil {
 		return nil, errors.Wrap(err, "check options")
 	}
@@ -42,7 +42,7 @@ func (c *Connect) Screenshot(opts Options) ([]byte, error) {
 }
 
 // ScreenshotToPath 全屏截图，将图片保存至指定路径
-func (c *Connect) ScreenshotToPath(opts Options) error {
+func (c *Connect) ScreenshotToPath(opts *Options) error {
 	if len(opts.Path) == 0 {
 		return errors.New("path can not be empty ")
 	}
@@ -56,7 +56,7 @@ func (c *Connect) ScreenshotToPath(opts Options) error {
 	return nil
 }
 
-func fullScreenshot(opts Options, res *[]byte) chromedp.Tasks {
+func fullScreenshot(opts *Options, res *[]byte) chromedp.Tasks {
 	logger := logWithFields(logx.LogField{Key: "options", Value: fmt.Sprintf("%+v", opts)})
 	return chromedp.Tasks{
 		//network.Enable(),
@@ -73,7 +73,7 @@ func fullScreenshot(opts Options, res *[]byte) chromedp.Tasks {
 			logger.Info("wait for events")
 			return runBatch(ctx,
 				waitForEventNetworkIdle(ctx, logger),
-				waitForEventLoadingFinished(ctx, logger),
+				//waitForEventLoadingFinished(ctx, logger),
 			)
 		}),
 		chromedp.FullScreenshot(res, opts.Quality),
