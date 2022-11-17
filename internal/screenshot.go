@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"log"
+	"os"
 
 	"cdp-screenshot/internal/internal/config"
 	"cdp-screenshot/internal/internal/handler"
@@ -31,7 +32,11 @@ func main() {
 
 	logx.MustSetup(c.Log)
 
-	connect, err := screenshot.NewConnect(c.WsURL)
+	wsURL := c.WsURL
+	if v := os.Getenv("WsURL"); len(v) != 0 {
+		wsURL = v
+	}
+	connect, err := screenshot.NewConnect(wsURL)
 	if err != nil {
 		log.Fatalf("unable to connect chromedp, please check WsURL: %s", c.WsURL)
 	}

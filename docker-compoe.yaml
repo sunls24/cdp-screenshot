@@ -1,0 +1,20 @@
+version: '3'
+services:
+
+  cdp-screenshot:
+    image: cdp-screenshot:v1.0.0
+    ports:
+      - "8888:8888"
+    environment:
+      WsURL: "ws://chromedp:9222/"
+    depends_on:
+      - chromedp
+
+  chromedp:
+    image: chromedp/headless-shell:109.0.5410.0
+    ports:
+      - "9222:9222"
+
+networks:
+  default:
+    driver: bridge
