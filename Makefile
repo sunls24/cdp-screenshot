@@ -28,8 +28,17 @@ clean:_clean_run ## 清理文件
 V?=v1.0.0
 .PHONY: build
 build: ## 构建Docker镜像
-	@echo "building..."
+	@echo "building cdp-screenshot..."
 	@docker build -t cdp-screenshot:${V} .
+
+CV?=107.0.5304.107
+.PHONY: build.chromedp
+build.chromedp: ## 构建chromedp镜像
+	@echo "building chromedp..."
+	@docker build --build-arg SHELL_TAG=${CV} -f Dockerfile.chromedp -t chromedp/headless-shell:${CV}_CN .
+
+.PHONY: build.all
+build.all:build build.chromedp ## 构建全部的Docker镜像
 
 help:
 	@awk -F ':|##' '/^[^\t].+?:.*?##/ {\

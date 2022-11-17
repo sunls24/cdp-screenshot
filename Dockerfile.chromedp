@@ -1,15 +1,16 @@
-ARG SHELL_TAG=109.0.5410.0
+ARG SHELL_TAG=107.0.5304.107
 
 FROM chromedp/headless-shell:${SHELL_TAG}
+
+# 修正简体中文显示为异体（日文）字形
+COPY font.conf /etc/fonts/conf.d/64-language-selector-prefer.conf
 RUN sed -i 's/deb.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list \
     && apt-get update && apt-get install -y \
     fonts-noto-cjk \
     fonts-noto-color-emoji \
     && rm -rf /var/lib/apt/lists/*
-# 修正简体中文显示为异体（日文）字形
-COPY font.conf /etc/fonts/conf.avail/64-language-selector-prefer.conf
 
-// 默认自带的命令参数
- ENTRYPOINT ["/headless-shell/headless-shell" "--no-sandbox" "--use-gl=angle" "--use-angle=swiftshader" "--remote-debugging-address=0.0.0.0" "--remote-debugging-port=9222"]
- // 后加的命令参数
- CMD ["--disable-gpu", "--font-render-hinting=none", "--window-size=1920,1080"]
+# 默认自带的命令参数
+#  ENTRYPOINT ["/headless-shell/headless-shell" "--no-sandbox" "--use-gl=angle" "--use-angle=swiftshader" "--remote-debugging-address=0.0.0.0" "--remote-debugging-port=9222"]
+# 后加的命令参数
+ CMD ["--disable-gpu" "--font-render-hinting=none" "--window-size=1920,1080"]

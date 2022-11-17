@@ -11,7 +11,6 @@ services:
       - chromedp
 
   chromedp:
-    image: chromedp/headless-shell:109.0.5410.0
-    command: "--disable-gpu --font-render-hinting=none --window-size=1920,1080"
+    image: chromedp/headless-shell:107.0.5304.107_CN
     ports:
       - "9222:9222"
