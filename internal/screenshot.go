@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 
 	"cdp-screenshot/internal/internal/config"
@@ -30,6 +29,8 @@ func main() {
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
 
+	logx.MustSetup(c.Log)
+
 	connect, err := screenshot.NewConnect(c.WsURL)
 	if err != nil {
 		log.Fatalf("unable to connect chromedp, please check WsURL: %s", c.WsURL)
@@ -41,6 +42,6 @@ func main() {
 	ctx := svc.NewServiceContext(c, connect)
 	handler.RegisterHandlers(server, ctx)
 
-	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
+	logx.Infof("Starting server at %s:%d...", c.Host, c.Port)
 	server.Start()
 }
