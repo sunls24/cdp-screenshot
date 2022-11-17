@@ -12,9 +12,6 @@ services:
 
   chromedp:
     image: chromedp/headless-shell:109.0.5410.0
+    command: "--disable-gpu --font-render-hinting=none --window-size=1920,1080"
     ports:
       - "9222:9222"
-
-networks:
-  default:
-    driver: bridge

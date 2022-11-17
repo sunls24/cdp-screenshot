@@ -1,0 +1,10 @@
+ARG SHELL_TAG=109.0.5410.0
+
+FROM chromedp/headless-shell:${SHELL_TAG}
+RUN sed -i 's/deb.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list \
+    && apt-get update && apt-get install -y \
+    fonts-noto-cjk \
+    fonts-noto-color-emoji \
+    && rm -rf /var/lib/apt/lists/*
+# 修正简体中文显示为异体（日文）字形
+COPY font.conf /etc/fonts/conf.avail/64-language-selector-prefer.conf
