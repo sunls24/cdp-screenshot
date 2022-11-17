@@ -1,0 +1,111 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "chromedp截图接口",
+    "description": "使用chromedp协议实现的网页截图功能",
+    "version": "v1.0.0"
+  },
+  "host": "127.0.0.1:8888",
+  "basePath": "/",
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/screenshot": {
+      "post": {
+        "summary": "截图接口",
+        "operationId": "Screenshot",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {}
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/request"
+            }
+          }
+        ],
+        "requestBody": {},
+        "tags": [
+          "screenshot"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "request": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": " 目标URL"
+        },
+        "clarity": {
+          "type": "integer",
+          "format": "int32",
+          "default": "8",
+          "description": " 截图清晰度\u003c1-10\u003e，主要影响图片分辨率，默认为8，清晰度越高截图文件越大"
+        },
+        "quality": {
+          "type": "integer",
+          "format": "int32",
+          "default": "100",
+          "description": " 截图质量 \u003c1-100\u003e"
+        },
+        "viewportWidth": {
+          "type": "integer",
+          "format": "int32",
+          "default": "1920",
+          "description": " 窗口大小宽度"
+        },
+        "viewportHeight": {
+          "type": "integer",
+          "format": "int32",
+          "default": "1080",
+          "description": " 窗口大小高度"
+        },
+        "timeout": {
+          "type": "integer",
+          "format": "int32",
+          "default": "60",
+          "description": " 截图超时设置，单位秒"
+        }
+      },
+      "title": "request",
+      "required": [
+        "url",
+        "clarity",
+        "quality",
+        "viewportWidth",
+        "viewportHeight",
+        "timeout"
+      ]
+    }
+  },
+  "securityDefinitions": {
+    "apiKey": {
+      "type": "apiKey",
+      "description": "Enter JWT Bearer token **_only_**",
+      "name": "Authorization",
+      "in": "header"
+    }
+  },
+  "security": [
+    {
+      "apiKey": []
+    }
+  ]
+}

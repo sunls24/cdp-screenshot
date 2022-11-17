@@ -2,10 +2,10 @@
 package types
 
 type Request struct {
-	URL            string `json:"url"`
-	Clarity        int    `json:"clarity,optional,range=[1:10]"`
-	Quality        int    `json:"quality,optional,range=[1:100]"`
-	ViewportWidth  int    `json:"viewportWidth,optional"`
-	ViewportHeight int    `json:"viewportHeight,optional"`
-	Timeout        int    `json:"timeout,optional"`
+	URL            string `json:"url"`                                        // 目标URL
+	Clarity        int    `json:"clarity,optional,range=[1:10],default=8"`    // 截图清晰度<1-10>，主要影响图片分辨率，默认为8，清晰度越高截图文件越大
+	Quality        int    `json:"quality,optional,range=[1:100],default=100"` // 截图质量 <1-100>
+	ViewportWidth  int    `json:"viewportWidth,optional,default=1920"`        // 窗口大小宽度
+	ViewportHeight int    `json:"viewportHeight,optional,default=1080"`       // 窗口大小高度
+	Timeout        int    `json:"timeout,optional,default=60"`                // 截图超时设置，单位秒
 }

@@ -36,7 +36,7 @@ func main() {
 		log.Fatalf("unable to connect chromedp, please check WsURL: %s", c.WsURL)
 	}
 
-	server := rest.MustNewServer(c.RestConf)
+	server := rest.MustNewServer(c.RestConf, rest.WithCors())
 	defer server.Stop()
 
 	ctx := svc.NewServiceContext(c, connect)
