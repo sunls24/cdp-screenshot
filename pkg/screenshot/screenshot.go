@@ -4,7 +4,10 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
+	"github.com/chromedp/cdproto/network"
+	"github.com/chromedp/cdproto/runtime"
 	"github.com/chromedp/chromedp"
 	"github.com/pkg/errors"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -24,11 +27,12 @@ func NewConnect(wsURL string) (*Connect, error) {
 }
 
 // Screenshot 全屏截图，返回图片数据
-func (c *Connect) Screenshot(opts *Options) ([]byte, error) {
+func (c *Connect) Screenshot(httpCtx context.Context, opts *Options) ([]byte, error) {
 	if err := opts.check(); err != nil {
 		return nil, errors.Wrap(err, "check options")
 	}
-	timeout, cancel := context.WithTimeout(context.Background(), opts.Timeout)
+
+	timeout, cancel := context.WithTimeout(httpCtx, opts.Timeout)
 	defer cancel()
 	// 创建一个远程浏览器
 	remoteCtx, cancel := chromedp.NewRemoteAllocator(timeout, c.wsURL)
@@ -46,7 +50,7 @@ func (c *Connect) ScreenshotToPath(opts *Options) error {
 	if len(opts.Path) == 0 {
 		return errors.New("path can not be empty ")
 	}
-	data, err := c.Screenshot(opts)
+	data, err := c.Screenshot(context.Background(), opts)
 	if err != nil {
 		return err
 	}
@@ -59,8 +63,8 @@ func (c *Connect) ScreenshotToPath(opts *Options) error {
 func fullScreenshot(opts *Options, res *[]byte) chromedp.Tasks {
 	logger := logWithFields(logx.LogField{Key: "options", Value: fmt.Sprintf("%+v", opts)})
 	return chromedp.Tasks{
-		//network.Enable(),
-		//runtime.Enable(),
+		network.Enable(),
+		runtime.Enable(),
 		chromedp.ActionFunc(func(ctx context.Context) error {
 			logger.Infof("screenshot start")
 			return nil
@@ -73,8 +77,14 @@ func fullScreenshot(opts *Options, res *[]byte) chromedp.Tasks {
 			logger.Info("wait for events")
 			return runBatch(ctx,
 				waitForEventNetworkIdle(ctx, logger),
-				//waitForEventLoadingFinished(ctx, logger),
 			)
+		}),
+		chromedp.ActionFunc(func(ctx context.Context) error {
+			if opts.WaitDelay == 0 {
+				return nil
+			}
+			<-time.After(opts.WaitDelay)
+			return nil
 		}),
 		chromedp.FullScreenshot(res, opts.Quality),
 		chromedp.ActionFunc(func(ctx context.Context) error {

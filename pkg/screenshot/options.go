@@ -18,8 +18,9 @@ type Options struct {
 	// Viewport 截图窗口大小
 	ViewportWidth, ViewportHeight int64
 
-	Timeout time.Duration
-	Path    string
+	Timeout   time.Duration
+	WaitDelay time.Duration
+	Path      string
 }
 
 func (o *Options) check() error {
@@ -71,6 +72,11 @@ func (o *Options) WithQuality(quality int) *Options {
 
 func (o *Options) WithTimeout(timeout time.Duration) *Options {
 	o.Timeout = timeout
+	return o
+}
+
+func (o *Options) WithDelay(waitDelay time.Duration) *Options {
+	o.WaitDelay = waitDelay
 	return o
 }
 

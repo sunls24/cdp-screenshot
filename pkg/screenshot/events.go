@@ -3,6 +3,7 @@ package screenshot
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/cdproto/page"
@@ -11,13 +12,34 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+func waitEventIdle(cancel func(), logger logx.Logger) func() {
+	const idleTime = 10 * time.Second
+	timer := time.NewTimer(idleTime)
+	go func() {
+		<-timer.C
+		cancel()
+		logger.Debugf("There is no event triggering for %v, and now it is judged that the loading is complete", idleTime)
+	}()
+	return func() { timer.Reset(idleTime) }
+}
+
 // waitForEventNetworkIdle waits until the event networkIdle is fired or the
 // context timeout.
 func waitForEventNetworkIdle(ctx context.Context, logger logx.Logger) func() error {
+	// 此处除了监听networkIdle事件以外还会判断无事件触发的持续时间，当大于10s时判定界面加载成功
 	return func() error {
 		ch := make(chan struct{})
 		cctx, cancel := context.WithCancel(ctx)
+		idleReset := waitEventIdle(func() {
+			select {
+			case <-ch: // 通道已经关闭
+			default:
+				cancel()
+				close(ch)
+			}
+		}, logger)
 		chromedp.ListenTarget(cctx, func(ev interface{}) {
+			idleReset()
 			switch e := ev.(type) {
 			case *page.EventLifecycleEvent:
 				if e.Name == "networkIdle" {

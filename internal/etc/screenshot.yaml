@@ -3,7 +3,7 @@ Host: 0.0.0.0
 Port: 8888
 Timeout: 0
 
-WsURL: ws://43.139.144.182:9222/
+WsURL: ws://10.0.64.4:9222/
 
 Log:
   ServiceName: cdp.screenshot

@@ -82,6 +82,12 @@
           "format": "int32",
           "default": "60",
           "description": " 截图超时设置，单位秒"
+        },
+        "waitDelay": {
+          "type": "integer",
+          "format": "int32",
+          "default": "0",
+          "description": " 设置等待时间"
         }
       },
       "title": "request",
@@ -91,7 +97,8 @@
         "quality",
         "viewportWidth",
         "viewportHeight",
-        "timeout"
+        "timeout",
+        "waitDelay"
       ]
     }
   },

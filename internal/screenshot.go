@@ -22,6 +22,7 @@ func init() {
 		Encoding: "plain",
 		Level:    "debug",
 	})
+	logx.DisableStat()
 }
 
 func main() {

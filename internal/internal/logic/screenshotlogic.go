@@ -36,7 +36,7 @@ func NewScreenshotLogic(ctx context.Context, svcCtx *svc.ServiceContext, r *http
 
 func (l *ScreenshotLogic) Screenshot(req *types.Request) error {
 	opts := getOptions(req)
-	data, err := l.svcCtx.Connect.Screenshot(opts)
+	data, err := l.svcCtx.Connect.Screenshot(l.ctx, opts)
 	if err != nil {
 		return err
 	}
@@ -61,6 +61,9 @@ func getOptions(req *types.Request) *screenshot.Options {
 	}
 	if req.Timeout != 0 {
 		opts.WithTimeout(time.Second * time.Duration(req.Timeout))
+	}
+	if req.WaitDelay != 0 {
+		opts.WithDelay(time.Second * time.Duration(req.WaitDelay))
 	}
 	return opts
 }

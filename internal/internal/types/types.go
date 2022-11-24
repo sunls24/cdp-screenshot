@@ -8,4 +8,5 @@ type Request struct {
 	ViewportWidth  int    `json:"viewportWidth,optional,default=1920"`        // 窗口大小宽度
 	ViewportHeight int    `json:"viewportHeight,optional,default=1080"`       // 窗口大小高度
 	Timeout        int    `json:"timeout,optional,default=60"`                // 截图超时设置，单位秒
+	WaitDelay      int    `json:"waitDelay,optional,default=0"`               // 设置等待时间
 }
