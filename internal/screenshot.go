@@ -4,6 +4,9 @@ import (
 	"flag"
 	"log"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"cdp-screenshot/internal/internal/config"
 	"cdp-screenshot/internal/internal/handler"
@@ -41,6 +44,19 @@ func main() {
 	if err != nil {
 		log.Fatalf("unable to connect chromedp, please check WsURL: %s", c.WsURL)
 	}
+
+	//监听指定信号 ctrl+c kill
+	kill := make(chan os.Signal, 1)
+	signal.Notify(kill, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+	go func() {
+		<-kill
+		// 收到中断信号，将浏览器关闭防止内存泄漏
+		if connect.CancelAll() {
+			logx.Debug("wait cancel all...")
+			<-time.After(time.Second)
+		}
+		os.Exit(1)
+	}()
 
 	server := rest.MustNewServer(c.RestConf, rest.WithCors())
 	defer server.Stop()
