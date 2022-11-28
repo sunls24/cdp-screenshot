@@ -18,9 +18,12 @@ type Options struct {
 	// Viewport 截图窗口大小
 	ViewportWidth, ViewportHeight int64
 
-	Timeout   time.Duration
-	WaitDelay time.Duration
-	Path      string
+	Timeout         time.Duration
+	WaitDelay       time.Duration
+	WaitFrontFinish bool
+	FrontFinishVar  string
+
+	Path string
 }
 
 func (o *Options) check() error {
@@ -35,6 +38,9 @@ func (o *Options) check() error {
 	if !strings.HasPrefix(o.URL, "http") {
 		o.URL = fmt.Sprintf("https://%s", o.URL)
 		logx.Slowf("URL does not start with 'http', 'https://' will be automatically spliced: %s", o.URL)
+	}
+	if o.WaitFrontFinish && len(o.FrontFinishVar) == 0 {
+		return errors.New("FrontFinishVar is required when WaitFrontFinish is equal to true")
 	}
 	return nil
 }
@@ -77,6 +83,16 @@ func (o *Options) WithTimeout(timeout time.Duration) *Options {
 
 func (o *Options) WithDelay(waitDelay time.Duration) *Options {
 	o.WaitDelay = waitDelay
+	return o
+}
+
+func (o *Options) WithWaitFrontFinish(waitFrontFinish bool) *Options {
+	o.WaitFrontFinish = waitFrontFinish
+	return o
+}
+
+func (o *Options) WithFrontFinishVar(frontFinishVar string) *Options {
+	o.FrontFinishVar = frontFinishVar
 	return o
 }
 

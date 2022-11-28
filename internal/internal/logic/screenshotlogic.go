@@ -65,6 +65,12 @@ func getOptions(req *types.Request) *screenshot.Options {
 	if req.WaitDelay != 0 {
 		opts.WithDelay(time.Second * time.Duration(req.WaitDelay))
 	}
+	if req.WaitFrontFinish {
+		opts.WithWaitFrontFinish(req.WaitFrontFinish)
+	}
+	if len(req.FrontFinishVar) != 0 {
+		opts.WithFrontFinishVar(req.FrontFinishVar)
+	}
 	return opts
 }
 

@@ -87,7 +87,18 @@
           "type": "integer",
           "format": "int32",
           "default": "0",
-          "description": " 设置等待时间"
+          "description": " 设置加载完成等待时间"
+        },
+        "WaitFrontFinish": {
+          "type": "boolean",
+          "format": "boolean",
+          "default": "false",
+          "description": " 等待前端加载完成"
+        },
+        "FrontFinishVar": {
+          "type": "string",
+          "default": "LOAD_FINISH",
+          "description": " 前端加载完成的变量标识"
         }
       },
       "title": "request",
@@ -98,7 +109,9 @@
         "viewportWidth",
         "viewportHeight",
         "timeout",
-        "waitDelay"
+        "waitDelay",
+        "WaitFrontFinish",
+        "FrontFinishVar"
       ]
     }
   },

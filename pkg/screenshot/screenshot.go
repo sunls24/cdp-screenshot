@@ -113,61 +113,31 @@ func fullScreenshot(opts *Options, res *[]byte) chromedp.Tasks {
 		chromedp.EmulateViewport(opts.ViewportWidth, opts.ViewportHeight, chromedp.EmulateScale(1+opts.Clarity)),
 		chromedp.Navigate(opts.URL),
 		chromedp.ActionFunc(func(ctx context.Context) error {
-			// 等待网页加载完成
-			logger.Info("wait for events")
+			if opts.WaitDelay != 0 || opts.WaitFrontFinish {
+				return nil
+			}
+			// 默认的等待逻辑
+			logger.Info("wait for networkIdle event")
 			return runBatch(ctx,
 				waitForEventNetworkIdle(ctx, logger),
 			)
 		}),
-		//chromedp.ActionFunc(func(ctx context.Context) error {
-		//	evaluate := func(expression string) error {
-		//		// We wait until the evaluation of the expression is true or
-		//		// until the context is done.
-		//		logger.Debug(fmt.Sprintf("wait until '%s' is true before print", expression))
-		//
-		//		ticker := time.NewTicker(time.Duration(100) * time.Millisecond)
-		//
-		//		for {
-		//			select {
-		//			case <-ctx.Done():
-		//				ticker.Stop()
-		//
-		//				return fmt.Errorf("context done while evaluating '%s': %w", expression, ctx.Err())
-		//			case <-ticker.C:
-		//				var ok bool
-		//
-		//				evaluate := chromedp.Evaluate(expression, &ok)
-		//				err := evaluate.Do(ctx)
-		//
-		//				if err != nil {
-		//					return err
-		//				}
-		//
-		//				if ok {
-		//					ticker.Stop()
-		//
-		//					return nil
-		//				}
-		//
-		//				continue
-		//			}
-		//		}
-		//	}
-		//	return evaluate("window.MAPBOX_OBLOAD == true")
-		//}),
-		//chromedp.ActionFunc(func(ctx context.Context) error {
-		//	const resize = `let event = document.createEvent("HTMLEvents");
-		//event.initEvent("resize", true, true);
-		//window.dispatchEvent(event);`
-		//	ev := chromedp.Evaluate(resize, nil)
-		//	return ev.Do(ctx)
-		//}),
 		chromedp.ActionFunc(func(ctx context.Context) error {
-			if opts.WaitDelay == 0 {
+			// 判断WaitDelay等待延迟和WaitFrontFinish等待前端完成是否设置
+			if opts.WaitDelay == 0 && !opts.WaitFrontFinish {
+				// 都没有设置
 				return nil
 			}
-			<-time.After(opts.WaitDelay)
-			return nil
+			if opts.WaitDelay != 0 && !opts.WaitFrontFinish {
+				// 只设置了WaitDelay
+				select {
+				case <-ctx.Done():
+					return ctx.Err()
+				case <-time.After(opts.WaitDelay):
+				}
+				return nil
+			}
+			return evaluate(ctx, opts.WaitDelay, expression(opts.FrontFinishVar), logger)
 		}),
 		chromedp.FullScreenshot(res, opts.Quality),
 		chromedp.ActionFunc(func(ctx context.Context) error {
@@ -184,4 +154,49 @@ func logWithFields(fields ...logx.LogField) logx.Logger {
 
 func ws2http(ws string) string {
 	return strings.Replace(ws, "ws", "http", 1)
+}
+
+func evaluate(ctx context.Context, waitDelay time.Duration, expression string, logger logx.Logger) error {
+	// We wait until the evaluation of the expression is true or
+	// until the context is done.
+	logger.Debug(fmt.Sprintf("wait until '%s' is true before screenshot", expression))
+	ticker := time.NewTicker(time.Duration(100) * time.Millisecond)
+
+	var delayTimer *time.Timer
+	if waitDelay != 0 {
+		delayTimer = time.NewTimer(waitDelay)
+	} else {
+		// 未设置waitDelay时，设置此timer不会触发
+		deadline, _ := ctx.Deadline()
+		delayTimer = time.NewTimer(deadline.Sub(time.Now()) + time.Second)
+	}
+	stopTimer := func() {
+		ticker.Stop()
+		delayTimer.Stop()
+	}
+	for {
+		select {
+		case <-ctx.Done():
+			stopTimer()
+			return fmt.Errorf("context done while evaluating '%s': %w", expression, ctx.Err())
+		case <-ticker.C:
+			var ok bool
+			evaluate := chromedp.Evaluate(expression, &ok)
+			if err := evaluate.Do(ctx); err != nil {
+				return err
+			}
+			if ok {
+				stopTimer()
+				return nil
+			}
+			continue
+		case <-delayTimer.C:
+			stopTimer()
+			return nil
+		}
+	}
+}
+
+func expression(v string) string {
+	return fmt.Sprintf("window.%s==true", v)
 }
