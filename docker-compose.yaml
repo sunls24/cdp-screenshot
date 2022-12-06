@@ -12,6 +12,7 @@ services:
 
   chromedp:
     image: chromedp/headless-shell:107.0.5304.107_CN
+    init: true # 解决僵尸进程问题
     shm_size: '2gb'
     command: ["--font-render-hinting=none", "--window-size=1920,1080", "--incognito=true", "--ignore-certificate-errors=true", "--disable-web-security=true", "--no-first-run=true", "--no-default-browser-check=true", "--disable-extensions=true", "--disable-default-apps=true"]
     ports:
