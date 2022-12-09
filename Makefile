@@ -21,7 +21,7 @@ run:_clean_run ## 启动服务
 _clean_run:
 	@echo "cleaning up..."
 	@if [ -f swagger.log ]; then rm -f *.log; fi
-	@lsof -i:8889 | grep swagger | awk '{print $$2}' | xargs kill -9
+	-@id=$(lsof -i:8889 | grep swagger | awk '{print $$2}'); if [ $$id ]; then echo $$id | xargs kill -9; fi
 
 clean:_clean_run ## 清理文件
 
